@@ -232,7 +232,7 @@ resource "aws_iam_role_policy" "user" {
       ],
       "Effect": "Allow",
       "Resource": [
-        "arn:aws:s3:::$${Transfer:HomeBucket}"
+        "arn:aws:s3:::${module.s3_bucket.s3_bucket_id}"
       ]
     },
     {
@@ -245,7 +245,7 @@ resource "aws_iam_role_policy" "user" {
         "s3:DeleteObject",
         "s3:GetObjectVersion"
       ],
-      "Resource": "arn:aws:s3:::${trimsuffix(each.value, "/")}/*"
+      "Resource": "arn:aws:s3:::${module.s3_bucket.s3_bucket_id}/${trimsuffix(each.value, "/")}/*"
     }
   ]
 }
@@ -256,7 +256,7 @@ resource "aws_transfer_user" "this" {
   for_each       = var.sftp_users
   server_id      = local.server_id
   user_name      = each.key
-  home_directory = "/${each.value}"
+  home_directory = "/${module.s3_bucket.s3_bucket_id}/${each.value}"
   role           = aws_iam_role.user[each.key].arn
   tags           = merge({ User = each.key }, var.tags)
 }
@@ -267,4 +267,7 @@ resource "aws_transfer_ssh_key" "this" {
   user_name  = each.key
   body       = each.value
   depends_on = [aws_transfer_user.this]
+}
+resource "aws_transfer_server" "imported" {
+
 }

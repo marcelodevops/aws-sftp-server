@@ -11,5 +11,5 @@ terraform {
     }
   }
 
-  experiments = [module_variable_optional_attrs]
+  #experiments = [module_variable_optional_attrs]
 }
